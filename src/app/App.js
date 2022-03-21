@@ -1,7 +1,7 @@
 import "./App.css";
 import { ethers } from "ethers";
 import { useState, useEffect } from "react";
-import TokenArtifact from "../artifacts/contracts/GregToken.sol/GregToken.json";
+import TokenArtifact from "./GregToken.json";
 import { BuyToken } from "./buyToken";
 import { Stake } from "./stake";
 const tokenAddress = "0x69Ddf36EF1844172aC178445f41d8123A0660457";
