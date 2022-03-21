@@ -1,19 +1,17 @@
 import "./App.css";
 import { ethers } from "ethers";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import TokenArtifact from "../artifacts/contracts/GregToken.sol/GregToken.json";
 import { BuyToken } from "./buyToken";
 import { Stake } from "./stake";
 const tokenAddress = "0x69Ddf36EF1844172aC178445f41d8123A0660457";
-
+const provider = new ethers.providers.Web3Provider(window.ethereum);
 function App() {
-  let data;
-  let walletConnection;
   const [tokenData, setTokenData] = useState({});
   const [connectionState, setConnectionState] = useState(false);
   const [walletdata, setwalletdata] = useState({});
   const [connectButton, setconnectButton] = useState("");
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  // const [provider, setprovider] = useState(providerS);
 
   async function requestAccount() {
     await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -24,34 +22,60 @@ function App() {
     return contract;
   }
 
-  async function _getTokenData() {
-    const contract = await _intializeContract(provider);
-    const name = await contract.name();
-    const symbol = await contract.symbol();
-    const tokenPricePerEther = await contract.tokenPricePerEther();
-    const tokenData = {
-      name: name,
-      symbol: symbol,
-      tokenPricePerEther: tokenPricePerEther.toString(),
-    };
-    setTokenData(tokenData);
-  }
-
   async function disconnectWallet() {
+    // setprovider("");
     setConnectionState(false);
   }
 
-  async function connectWallet() {
+  // async function connectWallet1() {
+  //   let connected = window.ethereum.isConnected();
+  //   if (!connectionState && connected) {
+  //     await window.ethereum.request({
+  //       method: "wallet_requestPermissions",
+  //       params: [
+  //         {
+  //           eth_accounts: {},
+  //         },
+  //       ],
+  //     });
+  //     setConnectionState(true);
+  //     return;
+  //   }
+  //   if (typeof window.ethereum !== "undefined") {
+  //     const contract = await _intializeContract(provider);
+  //     const [account] = await window.ethereum.request({
+  //       method: "eth_requestAccounts",
+  //     });
+  //     const Bigbalance = await contract.balanceOf(account);
+  //     const stake = await contract.stakeOf(account);
+  //     const rewards = await contract.rewardOf(account);
+  //     let strBalance = Bigbalance.toString();
+  //     let balance = strBalance / 10 ** 18;
+  //     setwalletdata({
+  //       contract: contract,
+  //       account: account,
+  //       balance: balance.toString(),
+  //       stake: stake.toString(),
+  //       rewards: rewards.toString(),
+  //     });
+  //     setConnectionState(true);
+  //     return;
+  //   }
+  // }
+
+  const connectWallet = useCallback(async () => {
+    // setprovider(new ethers.providers.Web3Provider(window.ethereum));
     let connected = window.ethereum.isConnected();
     if (!connectionState && connected) {
-      await window.ethereum.request({
-        method: "wallet_requestPermissions",
-        params: [
-          {
-            eth_accounts: {},
-          },
-        ],
-      });
+      (async () =>
+        await window.ethereum.request({
+          method: "wallet_requestPermissions",
+          params: [
+            {
+              eth_accounts: {},
+            },
+          ],
+        }))();
       setConnectionState(true);
       return;
     }
@@ -60,6 +84,7 @@ function App() {
       const [account] = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
+
       const Bigbalance = await contract.balanceOf(account);
       const stake = await contract.stakeOf(account);
       const rewards = await contract.rewardOf(account);
@@ -75,14 +100,26 @@ function App() {
       setConnectionState(true);
       return;
     }
-  }
+  }, [connectionState]);
 
   useEffect(() => {
-    data = _getTokenData();
+    async function _getTokenData() {
+      const contract = await _intializeContract(provider);
+      const name = await contract.name();
+      const symbol = await contract.symbol();
+      const tokenPricePerEther = await contract.tokenPricePerEther();
+      const tokenData = {
+        name: name,
+        symbol: symbol,
+        tokenPricePerEther: tokenPricePerEther.toString(),
+      };
+      setTokenData(tokenData);
+    }
+    _getTokenData();
 
     // let connected = window.ethereum.isConnected();
     if (connectionState === true) {
-      walletConnection = connectWallet();
+      connectWallet();
       setconnectButton(
         <h3>
           connected with: ({walletdata.account}){" "}
@@ -93,13 +130,7 @@ function App() {
       setConnectionState(false);
       setconnectButton(<ConnectButton connectWallet={connectWallet} />);
     }
-  }, [
-    tokenData.name,
-    connectionState,
-    walletdata.account,
-    data,
-    walletConnection,
-  ]);
+  }, [tokenData, connectionState, walletdata.account, connectWallet]);
 
   return (
     <div className="App">
