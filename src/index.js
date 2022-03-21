@@ -1,19 +1,27 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
+import { ethers } from "ethers";
 import App from "./app/App";
 import "./app/App.css";
 import reportWebVitals from "./reportWebVitals";
-
+let provider;
+try {
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+} catch (e) {
+  console.log(e);
+}
 ReactDOM.render(
   <React.StrictMode>
-    <div className="App">
-      <h2>Hi Welcome, This Application uses the Rinkeby Network</h2>
-      <p style={{ backgroundColor: "red" }}>
-        Ensure you have Metamask installed
-      </p>
-    </div>
-    <App />
+    {typeof window.ethereum !== "undefined" ? (
+      <App provider={provider} />
+    ) : (
+      <div className="App">
+        <p style={{ backgroundColor: "red" }}>
+          You need Metamask Installed to use the application
+        </p>
+      </div>
+    )}
   </React.StrictMode>,
   document.getElementById("root")
 );

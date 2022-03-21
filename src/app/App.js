@@ -5,13 +5,11 @@ import TokenArtifact from "../artifacts/contracts/GregToken.sol/GregToken.json";
 import { BuyToken } from "./buyToken";
 import { Stake } from "./stake";
 const tokenAddress = "0x69Ddf36EF1844172aC178445f41d8123A0660457";
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-function App() {
+function App({ provider }) {
   const [tokenData, setTokenData] = useState({});
   const [connectionState, setConnectionState] = useState(false);
   const [walletdata, setwalletdata] = useState({});
   const [connectButton, setconnectButton] = useState("");
-  // const [provider, setprovider] = useState(providerS);
 
   async function requestAccount() {
     await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -26,42 +24,6 @@ function App() {
     // setprovider("");
     setConnectionState(false);
   }
-
-  // async function connectWallet1() {
-  //   let connected = window.ethereum.isConnected();
-  //   if (!connectionState && connected) {
-  //     await window.ethereum.request({
-  //       method: "wallet_requestPermissions",
-  //       params: [
-  //         {
-  //           eth_accounts: {},
-  //         },
-  //       ],
-  //     });
-  //     setConnectionState(true);
-  //     return;
-  //   }
-  //   if (typeof window.ethereum !== "undefined") {
-  //     const contract = await _intializeContract(provider);
-  //     const [account] = await window.ethereum.request({
-  //       method: "eth_requestAccounts",
-  //     });
-  //     const Bigbalance = await contract.balanceOf(account);
-  //     const stake = await contract.stakeOf(account);
-  //     const rewards = await contract.rewardOf(account);
-  //     let strBalance = Bigbalance.toString();
-  //     let balance = strBalance / 10 ** 18;
-  //     setwalletdata({
-  //       contract: contract,
-  //       account: account,
-  //       balance: balance.toString(),
-  //       stake: stake.toString(),
-  //       rewards: rewards.toString(),
-  //     });
-  //     setConnectionState(true);
-  //     return;
-  //   }
-  // }
 
   const connectWallet = useCallback(async () => {
     // setprovider(new ethers.providers.Web3Provider(window.ethereum));
@@ -100,7 +62,7 @@ function App() {
       setConnectionState(true);
       return;
     }
-  }, [connectionState]);
+  }, [connectionState, provider]);
 
   useEffect(() => {
     async function _getTokenData() {
@@ -130,10 +92,11 @@ function App() {
       setConnectionState(false);
       setconnectButton(<ConnectButton connectWallet={connectWallet} />);
     }
-  }, [tokenData, connectionState, walletdata.account, connectWallet]);
+  }, [tokenData, connectionState, walletdata.account, connectWallet, provider]);
 
   return (
     <div className="App">
+      <h2>Hi Welcome, This Application uses the Rinkeby Network</h2>
       <h2>
         Token Name: {tokenData.name} (symbol: {tokenData.symbol})
       </h2>
