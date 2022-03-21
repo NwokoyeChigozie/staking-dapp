@@ -134,7 +134,6 @@ function App() {
 
   return (
     <div className="App">
-      <h2>Hi Welcome, This Application uses the Rinkeby Network</h2>
       <h2>
         Token Name: {tokenData.name} (symbol: {tokenData.symbol})
       </h2>
