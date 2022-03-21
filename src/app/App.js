@@ -1,12 +1,14 @@
 import "./App.css";
 import { ethers } from "ethers";
 import { useState, useEffect } from "react";
-import TokenArtifact from "./GregToken.json";
+import TokenArtifact from "../artifacts/contracts/GregToken.sol/GregToken.json";
 import { BuyToken } from "./buyToken";
 import { Stake } from "./stake";
 const tokenAddress = "0x69Ddf36EF1844172aC178445f41d8123A0660457";
 
 function App() {
+  let data;
+  let walletConnection;
   const [tokenData, setTokenData] = useState({});
   const [connectionState, setConnectionState] = useState(false);
   const [walletdata, setwalletdata] = useState({});
@@ -76,10 +78,11 @@ function App() {
   }
 
   useEffect(() => {
-    _getTokenData();
+    data = _getTokenData();
+
     // let connected = window.ethereum.isConnected();
     if (connectionState === true) {
-      connectWallet();
+      walletConnection = connectWallet();
       setconnectButton(
         <h3>
           connected with: ({walletdata.account}){" "}
@@ -90,7 +93,13 @@ function App() {
       setConnectionState(false);
       setconnectButton(<ConnectButton connectWallet={connectWallet} />);
     }
-  }, [tokenData.name, connectionState, walletdata.account]);
+  }, [
+    tokenData.name,
+    connectionState,
+    walletdata.account,
+    data,
+    walletConnection,
+  ]);
 
   return (
     <div className="App">
